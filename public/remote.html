@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+
+	<meta charset="utf-8">
+
+	<title>Remote</title>
+
+	<meta name="apple-mobile-web-app-capable" content="yes" />
+	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+
+</head>
+
+<body>
+
+	<div id="id-box" class="id-box">
+		socket id: <span class="user-id"></span>
+	</div>
+
+	<!-- Start socket-reloader -->
+		<div id="socket-reloader">
+			<a id="reload-all-sockets" href="#">Reload all sockets</a>
+		</div>
+	<!-- End socket-reloader -->
+
+	
+	<!-- Start chat -->
+		<div id="chat">
+			<form id="chat-form">
+				<label for="msg">Message</label><input type="text" id="msg">
+				<input type="submit" value="Send">
+			</form>
+
+			<ol id="msg-list">
+			</ol>
+		</div>
+	<!-- End chat -->
+
+	
+
+
+	<!-- Including the JS libraries that we use -->
+	<script src="//code.jquery.com/jquery-2.1.3.min.js"></script>
+
+	<!-- Socket.io library -->
+	<script src="/socket.io/socket.io.js"></script>
+
+	<!-- Main JavaScript file -->
+	<script src="js/util-sockets.js"></script>
+	<script src="js/remote-page.js"></script>
+	<script src="js/chat.js"></script>
+
+	<!-- debugging/helper js files -->
+	<script src="js/reload-sockets.js"></script>
+	<script src="js/show-socket-id.js"></script>
+
+	<!-- add socket - anything that needs connectionready event should be added before this -->
+	<script src="js/connection-init.js"></script>
+</body>
+</html>
