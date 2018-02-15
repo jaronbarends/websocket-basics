@@ -118,7 +118,8 @@ var updateusersHandler = function(socket, data) {
 */
 var passThroughHandler = function(data) {
 	if (data.eventName) {
-		rooms.emit(data.eventName, data.eventData);
+		// rooms.emit(data.eventName, data.eventData);
+		rooms.emit(passTrough, data);// hub-client will pick this up
 	}
 };
 
