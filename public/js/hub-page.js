@@ -10,31 +10,34 @@
 	//io is a bit of a strange name, but it's being used in examples everywhere,
 	//so let's stick to that.
 
-
+	const body = document.body;
 
 	/**
-	* add event listeners for socket
+	* add listeners for body-events coming from the hub through the hubProxy
 	* @returns {undefined}
 	*/
-	const initSocketListeners = function() {
+	const initHubProxyListeners = function() {
 		// add events you want to listen for, like this:
-		// io.on('newuser', newUserHandler);
+		// body.addEventListener('eventname.hub', callback);
 	};
 
 
 	
 	/**
-	* initialize this hub when
-	* @param {string} varname Description
+	* initialize this script when the hub-proxy is ready
 	* @returns {undefined}
 	*/
-	const initHub = function() {
-		initSocketListeners();
+	const init = function() {
+		initHubProxyListeners();
 	};
 
 
 
-	// init when connection is ready	
-	document.addEventListener('connectionready.socket', initHub);
+	// single point of entry: init when connection is ready	
+	if (window.hubProxy && window.hubProxy.isReady) {
+		init();
+	} else {
+		body.addEventListener('hubready.hub', init);
+	}
 
 })();

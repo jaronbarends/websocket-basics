@@ -46,27 +46,27 @@ The root folder contains the node-server (_socket-server.js_) and the npm stuff.
 
 The functionalities have been seperated as much as possible into different javascript files to prepare for re-use.
 
-### socket-server.js
+### socket.io-server.js
 
-This is the server you run to serve the pages: `node socket-server`
-Or double click the batch file _START SOCKET SERVER.bat_ (this is just a file containing the command `node socket-server`)
+This is the server you run to serve the pages: `node socket.io-server`
+Or double click the batch file _START SOCKET.IO SERVER.bat_ (this is just a file containing the command `node socket-server`)
 
 The socket-server serves files in the _public_ directory and handles traffic between sockets. Sockets can send events to the socket-server, and the socket-server sends some of its own events to the sockets.
 
-#### Events socket-server.js listens for
+#### Events socket.io-server.js listens for
 * `disconnect` Sent by socket.io when user disconnects
 * `join` Sent by clients when they want to join the room
 * `updateusers` Sent by clients when the users of the room change
 * `passthrough` Sent by clients to pass an event to all clients
 
-#### Events socket-server.js sends
+#### Events socket.io-server.js sends
 * `connectionready` Sent when socket has established a connection. Listened for by _connection-init.js_, which then sends a `connectionready.socket` event
 
 ### socket.io.js
 
 External library for handling websockets
 
-### public/js/connection-init.js
+### public/js/socket.io-hub-proxy.js
 
 Creates a websocket, and lets the `document` trigger an event `connectionready.socket`. Other scripts can listen for that event, and initialize themselves.
 

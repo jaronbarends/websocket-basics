@@ -59,8 +59,8 @@ var removeUser = function(id) {
 * @returns {undefined}
 */
 var disconnectHandler = function(socket) {
-	console.log('\n-------------------------------------------');
-	console.log('user '+socket.id+' disconnected\n');
+	// console.log('\n-------------------------------------------');
+	// console.log('user '+socket.id+' disconnected\n');
 
 	removedUser = removeUser(socket.id);
 	var data = {
@@ -91,7 +91,7 @@ var joinHandler = function(socket, user) {
 	//send message to newly joined user
 	socket.emit('joined', users);
 
-	//send message to rest of the room
+	//send message to rest of the room (or is this to all of the room, including newly joined?)
 	socket.broadcast.emit('newuser', users);
 };
 
@@ -119,7 +119,7 @@ var updateusersHandler = function(socket, data) {
 var passThroughHandler = function(data) {
 	if (data.eventName) {
 		// rooms.emit(data.eventName, data.eventData);
-		rooms.emit(passTrough, data);// hub-client will pick this up
+		rooms.emit('hubevent', data);// hub-client-socketIO.js will pick this up and fire body event
 	}
 };
 

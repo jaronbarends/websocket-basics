@@ -1,8 +1,4 @@
-/*
-* bridge between device-orientation and socket server
-* listens for deviceorientation events and passes them on to the socket server
-*/
-;(function() {
+(function() {
 
 	'use strict';
 
@@ -14,29 +10,34 @@
 	//io is a bit of a strange name, but it's being used in examples everywhere,
 	//so let's stick to that.
 
-
+	const body = document.body;
 
 	/**
-	* add event listeners for socket
+	* add listeners for body-events coming from the hub through the hubProxy
 	* @returns {undefined}
 	*/
-	const initSocketListeners = function() {
+	const initHubProxyListeners = function() {
 		// add events you want to listen for, like this:
-		// io.on('newuser', newUserHandler);
+		// body.addEventListener('eventname.hub', callback);
 	};
 
+
 	
-
-
 	/**
-	* initialize the remote
+	* initialize this hub when
 	* @returns {undefined}
 	*/
 	const init = function() {
-		initSocketListeners();
+		initHubProxyListeners();
 	};
 
 
+
 	// single point of entry: init when connection is ready	
-	document.addEventListener('connectionready.socket', init);
+	if (window.hubProxy && window.hubProxy.isReady) {
+		init();
+	} else {
+		body.addEventListener('hubready.hub', init);
+	}
+
 })();

@@ -11,7 +11,8 @@
 	//so let's stick to that.
 
 
-	const msg = document.getElementById('msg'),
+	const body = document.body,
+	      msg = document.getElementById('msg'),
 	      msgList = document.getElementById('msg-list');
 
 	/**
@@ -20,6 +21,7 @@
 	* @returns {undefined}
 	*/
 	const messageHandler = function(data) {
+		data = data.detail;
 		const newMsg = document.createElement('li');
 		newMsg.textContent = data.msg + ' (from ' + data.id + ')';
 		msgList.append(newMsg);
@@ -37,8 +39,10 @@
 			msg: msg.value,
 			id: io.id
 		};
-		msg.value = '';
-		window.util.sockets.sendEventToSockets('chatmessage', data)
+		// window.util.sockets.sendEventToSockets('chatmessage', data)
+		window.hubProxy.sendEventToClients('chatmessage', data)
+
+		msg.value = '';// empty field for next entry
 	};
 	
 
@@ -54,26 +58,33 @@
 
 
 	/**
-	* add event listeners for all events we want to receive from socket
+	* add listeners for body-events coming from the hub through the hubProxy
 	* @returns {undefined}
 	*/
-	const initSocketListeners = function() {
-		io.on('chatmessage', messageHandler);
+	const initHubProxyListeners = function() {
+		// add events you want to listen for, like this:
+		// io.on('chatmessage', messageHandler);
+		body.addEventListener('chatmessage.hub', messageHandler);
 	};
 
 
 	
 	/**
-	* initialize this hub when
+	* initialize this script when the hubProxy is ready
 	* @param {string} varname Description
 	* @returns {undefined}
 	*/
-	const initChat = function() {
+	const init = function() {
 		initChatForm();
-		initSocketListeners();
+		initHubProxyListeners();
 	};
 
 	
-	document.addEventListener('connectionready.socket', initChat);
+	// single point of entry: init when connection is ready
+	if (window.hubProxy && window.hubProxy.isReady) {
+		init();
+	} else {
+		body.addEventListener('hubready.hub', init);
+	}
 
 })();
