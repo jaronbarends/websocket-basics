@@ -2,7 +2,7 @@
 
 	'use strict';
 
-	/* global io */ //instruction for jshint
+	/* globals io, hubProxy */ //instruction for jshint
 
 	//globals:
 	//window.io is defined by socket.IO.
@@ -17,11 +17,11 @@
 
 	/**
 	* handle the new message being received from server
-	* @param {object} data Data sent by remote.js's tiltchange event
+	* @param {object} evt The event coming from the socket server through the hubProxy
 	* @returns {undefined}
 	*/
-	const messageHandler = function(data) {
-		data = data.detail;
+	const messageHandler = function(evt) {
+		const data = evt.detail;
 		const newMsg = document.createElement('li');
 		newMsg.textContent = data.msg + ' (from ' + data.id + ')';
 		msgList.append(newMsg);
@@ -30,17 +30,16 @@
 
 	/**
 	* handle submit of chat form
-	* @param {event} e - Submit event
+	* @param {event} evt - Submit event
 	* @returns {undefined}
 	*/
-	const submitHandler = function(e) {
-		e.preventDefault();
+	const submitHandler = function(evt) {
+		evt.preventDefault();
 		const data = {
 			msg: msg.value,
 			id: io.id
 		};
-		// window.util.sockets.sendEventToSockets('chatmessage', data)
-		window.hubProxy.sendEventToClients('chatmessage', data)
+		window.hubProxy.sendEventToClients('chatmessage', data);
 
 		msg.value = '';// empty field for next entry
 	};
@@ -63,7 +62,6 @@
 	*/
 	const initHubProxyListeners = function() {
 		// add events you want to listen for, like this:
-		// io.on('chatmessage', messageHandler);
 		body.addEventListener('chatmessage.hub', messageHandler);
 	};
 
