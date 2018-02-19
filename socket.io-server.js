@@ -1,6 +1,6 @@
-// This is the server-side file of our mobile remote controller app.
+// This is the server-side file of the socket server implementation
 // It initializes socket.io and a new express instance.
-// Start it by running 'node socket-server' from your terminal.
+// Start it by running 'node socket.io-server' from your terminal.
 
 
 // Define global vars
@@ -8,9 +8,7 @@ var express,
 	app,
 	port,
 	io,
-	rooms,
-	roomName = 'defaultRoom',//we're only supporting one room for now
-	users = [];
+	clients;
 
 
 /**
@@ -24,7 +22,7 @@ var initBasicRequirements = function() {
 	app = express();
 
 	//set port that we'll use
-	port = process.env.PORT || 3000;// This is needed if the app is run on heroku and other cloud providers:
+	port = process.env.PORT || 3000;// This is needed if the app is run on heroku and other cloud providers
 
 	// Initialize a new socket.io object. It is bound to 
 	// the express app, which allows them to coexist.
@@ -32,80 +30,6 @@ var initBasicRequirements = function() {
 
 	// Make the files in the public folder available to the world
 	app.use(express.static(__dirname + '/public'));
-};
-
-
-/**
-* remove a user from the users array
-* @returns {object} The removed user's user object
-*/
-var removeUser = function(id) {
-	var removedUser;
-	for (var i=0, len=users.length; i<len; i++) {
-		if (users[i].id === id) {
-			removedUser = users.splice(i,1)[0];//splice returns array, so take element 0 of that
-			break;
-		}
-	}
-	return removedUser;
-};
-
-
-
-
-/**
-* handle user disconnecting (closing browser window)
-* @param {socket object} socket The disconnecting socket
-* @returns {undefined}
-*/
-var disconnectHandler = function(socket) {
-	// console.log('\n-------------------------------------------');
-	// console.log('user '+socket.id+' disconnected\n');
-
-	removedUser = removeUser(socket.id);
-	var data = {
-		removedUser: removedUser,
-		users: users
-	};
-
-	//io.sockets.adapter contains to objects: rooms and sids which are similar
-	//rooms contains an object for every socket, and one for every room
-	//sids only contains an object for every socket.
-	//so the ones that are in rooms but not in sids are the rooms the socket was in.
-	rooms.emit('disconnect', data);
-};
-
-
-/**
-* handle new user joining the room
-* @param {socket object} socket The socket requesting to join
-* @param {object} user Object containing data about the user
-* @returns {undefined}
-*/
-var joinHandler = function(socket, user) {
-	socket.join(roomName);
-
-	//add the new user's data to the users array
-	users.push(user);
-
-	//send message to newly joined user
-	socket.emit('joined', users);
-
-	//send message to rest of the room (or is this to all of the room, including newly joined?)
-	socket.broadcast.emit('newuser', users);
-};
-
-
-/**
-* when something about a user changes, that client updates the users array
-* store the updated array and pass the event on to the room
-* @param {socket object} socket The socket requesting to join
-* @param {object} data Object containing updated users array and the updated user {users, changedUser}
-* @returns {undefined}
-*/
-var updateusersHandler = function(socket, data) {
-	users = data.users;
-	rooms.emit('updateusers', data);
 };
 
 
@@ -118,33 +42,19 @@ var updateusersHandler = function(socket, data) {
 */
 var passThroughHandler = function(data) {
 	if (data.eventName) {
-		// rooms.emit(data.eventName, data.eventData);
-		rooms.emit('hubevent', data);// hub-client-socketIO.js will pick this up and fire body event
+		clients.emit('hubevent', data);// hub-client-socketIO.js will pick this up and fire body event
 	}
 };
 
 
 /**
-* create the server where all sockets can be handled
+* initialize connections to clients
 * @returns {undefined}
 */
-var createServer = function() {
-	rooms = io.on('connection', function (socket) {
-
-		// A new client has come online. 
+var initClientConnections = function() {
+	clients = io.on('connect', function (socket) {
+		// A new client has come online; send it a connectionready event
 		socket.emit('connectionready');
-
-		socket.on('disconnect', function(){
-			disconnectHandler(socket);
-		});
-
-		socket.on('join', function(data) {
-			joinHandler(socket, data);
-		});
-
-		socket.on('updateusers', function(data) {
-			updateusersHandler(socket, data);
-		});
 
 		//set handler for events that only have to be passsed on to all sockets
 		socket.on('passthrough', passThroughHandler);
@@ -153,14 +63,16 @@ var createServer = function() {
 
 
 /**
-* 
+* Initialize everything
 * @param {string} varname Description
 * @returns {undefined}
 */
 var init = function() {
 	initBasicRequirements();
-	createServer();
+	initClientConnections();
 	console.log('Now running on http://localhost:' + port);
 };
 
+
+// kick things off
 init();
