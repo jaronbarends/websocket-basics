@@ -4,7 +4,7 @@
 
 
 // Define global vars
-var express,
+let express,
 	app,
 	port,
 	io,
@@ -15,7 +15,7 @@ var express,
 * initialize basic requirements for the server
 * @returns {undefined}
 */
-var initBasicRequirements = function() {
+const initBasicRequirements = function() {
 
 	//create express server
 	express = require('express');
@@ -40,7 +40,7 @@ var initBasicRequirements = function() {
 * @param {object} data Object containing {string} eventName and [optional {object} eventData]
 * @returns {undefined}
 */
-var passThroughHandler = function(data) {
+const passThroughHandler = function(data) {
 	if (data.eventName) {
 		clients.emit('hubevent', data);// hub-client-socketIO.js will pick this up and fire body event
 	}
@@ -51,7 +51,7 @@ var passThroughHandler = function(data) {
 * initialize connections to clients
 * @returns {undefined}
 */
-var initClientConnections = function() {
+const initClientConnections = function() {
 	clients = io.on('connect', function (socket) {
 		// A new client has come online; send it a connectionready event
 		socket.emit('connectionready');
@@ -67,7 +67,7 @@ var initClientConnections = function() {
 * @param {string} varname Description
 * @returns {undefined}
 */
-var init = function() {
+const init = function() {
 	initBasicRequirements();
 	initClientConnections();
 	console.log('Now running on http://localhost:' + port);
